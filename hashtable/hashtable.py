@@ -42,16 +42,7 @@ class HashTable:
         """
         Return the load factor for this hash table.
         """
-        counter = 0
-
-        for i in self.entries:
-            if i is not None:
-                counter += 1
-                
-                if i.next is not None:
-                    counter += 1
-        
-        return counter / self.capacity
+        return self.num_entries / self.capacity
 
 
     def fnv1(self, key):
