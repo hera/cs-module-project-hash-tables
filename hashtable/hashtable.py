@@ -24,6 +24,7 @@ class HashTable:
 
         self.capacity = capacity
         self.entries = [None] * capacity
+        self.num_entries = 0
 
 
     def get_num_slots(self):
@@ -91,6 +92,7 @@ class HashTable:
         # if empty
         if self.entries[index] is None:
             self.entries[index] = new_entry
+            self.num_entries += 1
             return new_entry
 
         
@@ -108,6 +110,7 @@ class HashTable:
         # add new entry as head
         new_entry.next = self.entries[index]
         self.entries[index] = new_entry
+        self.num_entries += 1
 
         return self.entries[index]
 
@@ -129,6 +132,7 @@ class HashTable:
         # if head matches
         if current_entry.key == key:
             self.entries[index] = current_entry.next
+            self.num_entries -= 1
 
         # always keep previous entry
         prev = current_entry
@@ -139,6 +143,7 @@ class HashTable:
         while temp is not None:
             if temp.key == key:
                 prev.next = temp.next
+                self.num_entries -= 1
                 return temp.value
             else:
                 temp = temp.next
