@@ -23,8 +23,8 @@ class HashTable:
             capacity = MIN_CAPACITY
 
         self.capacity = capacity
-        self.entries = [None] * capacity
-        self.num_entries = 0
+        self.storage = [None] * capacity
+        self.storage_counter = 0
 
 
     def get_num_slots(self):
@@ -35,14 +35,25 @@ class HashTable:
 
         One of the tests relies on this.
         """
-        return len(self.entries)
+        return len(self.storage)
 
 
     def get_load_factor(self):
         """
         Return the load factor for this hash table.
         """
-        return self.num_entries / self.capacity
+        return self.storage_counter / self.capacity
+    
+    def check_resize(self):
+        """
+        Check if storage resize is needed
+        """
+        factor = self.get_load_factor()
+
+        if factor >= 0.7:
+            self.resize(self.capacity * 2)
+        elif factor <= 0.2:
+            self.resize(MIN_CAPACITY)
 
 
     def fnv1(self, key):
@@ -77,19 +88,22 @@ class HashTable:
 
         Hash collisions should be handled with Linked List Chaining.
         """
+
+        self.check_resize()
+
         new_entry = HashTableEntry(key, value)
         index = self.hash_index(key)
 
         # if empty
-        if self.entries[index] is None:
-            self.entries[index] = new_entry
-            self.num_entries += 1
+        if self.storage[index] is None:
+            self.storage[index] = new_entry
+            self.storage_counter += 1
             return new_entry
 
         
-        current_entry = self.entries[index]
+        current_entry = self.storage[index]
 
-        # check all entries
+        # check all storage
         while current_entry is not None:
             if current_entry.key == key:
                 # override the value
@@ -99,11 +113,11 @@ class HashTable:
                 current_entry = current_entry.next
         
         # add new entry as head
-        new_entry.next = self.entries[index]
-        self.entries[index] = new_entry
-        self.num_entries += 1
+        new_entry.next = self.storage[index]
+        self.storage[index] = new_entry
+        self.storage_counter += 1
 
-        return self.entries[index]
+        return self.storage[index]
 
     def delete(self, key):
         """
@@ -111,10 +125,13 @@ class HashTable:
 
         Prints a warning if the key is not found.
         """
+
+        self.check_resize()
+
         warning = f"The key '{key}' is not found."
         index = self.hash_index(key)
 
-        current_entry = self.entries[index]
+        current_entry = self.storage[index]
 
         if current_entry is None:
             print(warning)
@@ -122,19 +139,19 @@ class HashTable:
 
         # if head matches
         if current_entry.key == key:
-            self.entries[index] = current_entry.next
-            self.num_entries -= 1
+            self.storage[index] = current_entry.next
+            self.storage_counter -= 1
 
         # always keep previous entry
         prev = current_entry
 
         temp = current_entry.next
 
-        # check all entries
+        # check all storage
         while temp is not None:
             if temp.key == key:
                 prev.next = temp.next
-                self.num_entries -= 1
+                self.storage_counter -= 1
                 return temp.value
             else:
                 temp = temp.next
@@ -150,12 +167,12 @@ class HashTable:
         Returns None if the key is not found.
         """
         index = self.hash_index(key)
-        current_entry = self.entries[index]
+        current_entry = self.storage[index]
 
         if current_entry is None:
             return None
         else:
-            # check all entries in a linked list
+            # check all storage in a linked list
             while current_entry is not None:
                 # if matches
                 if current_entry.key == key:
@@ -167,15 +184,57 @@ class HashTable:
         return None
                 
         
-
-
     def resize(self, new_capacity):
         """
         Changes the capacity of the hash table and
         rehashes all key/value pairs.
         """
-        pass
 
+        self.capacity = new_capacity
+
+        new_storage = [None] * new_capacity
+        new_storage_counter = 0
+
+        for entry in self.storage:
+            current_entry = entry
+
+            while current_entry is not None:
+                # generate a new index
+                new_index = self.hash_index(current_entry.key)
+
+                # create a new entry
+                new_entry = HashTableEntry(current_entry.key, current_entry.value)
+
+                # Save it in new_storage
+
+                # If position is empty
+                if new_storage[new_index] is None:
+                    new_storage[new_index] = new_entry
+                    new_storage_counter += 1
+                else:
+                    # for each of the elements in the linked list
+                    # check if override is needed
+                    last = new_storage[new_index]
+
+                    while last is not None:
+                        if last.key == current_entry.key:
+                            last.value = current_entry.value
+                            break
+                        else:
+                            last = last.next
+                    
+                    # nothing matched, so add the new entry as head
+                    new_entry.next = new_storage[new_index]
+                    new_storage[new_index] = new_entry
+                    new_storage_counter += 1
+                
+                # proceed to the next entry in the linked list
+                current_entry = current_entry.next
+        
+        # update storage
+
+        self.storage = new_storage
+        self.storage_counter = new_storage_counter
 
 
 if __name__ == "__main__":
