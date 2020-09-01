@@ -1,7 +1,31 @@
+
 def word_count(s):
-    # Your code here
+    if len(s) == 0:
+        return {}
 
+    # get rid of these characters
+    ignored_chars = ["\"", ":", ";", ",", ".", ",", "-", "+", "=", "/", "\\", "|", "[", "]", "{", "}", "(", ")", "*", "^", "&"]
+    for char in ignored_chars:
+        s = s.replace(char, "")
 
+    for char in ("\t", "\r", "\n"):
+        s = s.replace(char, " ")
+
+    words = s.split(" ")
+    result = {}
+
+    for word in words:
+        if len(word) == 0:
+            continue
+
+        word_lower = word.lower()
+
+        if word_lower in result:
+            result[word_lower] += 1
+        else:
+            result[word_lower] = 1
+    
+    return result
 
 if __name__ == "__main__":
     print(word_count(""))
