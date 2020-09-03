@@ -53,7 +53,7 @@ def histogram(input_file):
         ("only": 34)
     }
     """
-    occurencies_sorted = [(k, v) for k, v in occurencies.items()]
+    occurencies_sorted = list(occurencies.items())
 
     # sort in ascending order
     sel_sort(occurencies_sorted)
