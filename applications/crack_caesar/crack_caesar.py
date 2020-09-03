@@ -64,10 +64,10 @@ def caesar(input_file):
 
     # convert all items to format [("A", 0.5), ...] and sort
 
-    encode_table_sorted = [(k, v) for k, v in encode_table.items()]
+    encode_table_sorted = list(encode_table.items())
     sel_sort(encode_table_sorted)
 
-    decode_table_sorted = [(k, v) for k, v in decode_table.items()]
+    decode_table_sorted = list(decode_table.items())
     sel_sort(decode_table_sorted)
 
     # match letters in encode table with letters in decode table
